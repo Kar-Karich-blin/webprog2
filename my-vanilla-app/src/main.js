@@ -118,8 +118,3 @@ cityFilter.addEventListener('change', renderUsers);
 refreshButton.addEventListener('click', loadUsers);
 
 loadUsers();
-
-
-
-
-
