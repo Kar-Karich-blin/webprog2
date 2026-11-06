@@ -1,6 +1,6 @@
 import './style.css';
 
-const API_URL = 'https://ghibliapi.vercel.app/people';
+const API_URL = 'https://corsproxy.io/?https://ghibliapi.vercel.app/people';
 
 const app = document.querySelector('#app');
 
