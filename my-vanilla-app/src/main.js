@@ -1,14 +1,14 @@
 import './style.css';
 
-const API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://ghibliapi.vercel.app/people');
+const API_URL = 'https://jsonplaceholder.typicode.com/users';
 
 const app = document.querySelector('#app');
 
 app.innerHTML = `
   <div class="container">
     <header>
-      <h1>Ghibli Characters</h1>
-      <p>Каталог персонажей студии Ghibli</p>
+      <h1>User Explorer</h1>
+      <p>Каталог пользователей</p>
     </header>
 
     <div class="controls">
@@ -18,8 +18,8 @@ app.innerHTML = `
         placeholder="Поиск по имени..."
       />
 
-      <select id="genderFilter"> 
-        <option value="">Все персонажи</option>
+      <select id="cityFilter">
+        <option value="">Все города</option>
       </select>
 
       <button id="refresh">Обновить</button>
@@ -34,8 +34,7 @@ app.innerHTML = `
 const usersContainer = document.querySelector('#users');
 const status = document.querySelector('#status');
 const searchInput = document.querySelector('#search');
-
-const genderFilter = document.querySelector('#genderFilter'); 
+const cityFilter = document.querySelector('#cityFilter');
 const refreshButton = document.querySelector('#refresh');
 
 let users = [];
@@ -51,17 +50,16 @@ async function loadUsers() {
       throw new Error('Ошибка загрузки данных');
     }
 
-    const data = await response.json();
-    users = data.slice(0, 30); 
+    users = await response.json();
 
     status.textContent = '';
 
-    fillGenders(); 
+    fillCities();
     renderUsers();
 
   } catch (error) {
     status.textContent =
-      'Не удалось загрузить персонажей. Попробуйте ещё раз.';
+      'Не удалось загрузить пользователей. Попробуйте ещё раз.';
 
     usersContainer.innerHTML = `
       <button id="retry">Повторить попытку</button>
@@ -72,31 +70,32 @@ async function loadUsers() {
   }
 }
 
-function fillGenders() {
-  const genders = [...new Set(
-    users.map(user => user.gender)
-  )].filter(Boolean); 
-  genderFilter.innerHTML = `
-    <option value="">Все персонажи</option>
-    ${genders.map(gender =>
-      `<option value="${gender}">${gender}</option>`
+function fillCities() {
+  const cities = [...new Set(
+    users.map(user => user.address.city)
+  )];
+
+  cityFilter.innerHTML = `
+    <option value="">Все города</option>
+    ${cities.map(city =>
+      `<option value="${city}">${city}</option>`
     ).join('')}
   `;
 }
 
 function renderUsers() {
   const searchValue = searchInput.value.toLowerCase();
-  const selectedGender = genderFilter.value;
+  const selectedCity = cityFilter.value;
 
   const filteredUsers = users.filter(user => {
     const matchesName = user.name
       .toLowerCase()
       .includes(searchValue);
 
-    const matchesGender = selectedGender === '' ||
-      user.gender === selectedGender;
+    const matchesCity = selectedCity === '' ||
+      user.address.city === selectedCity;
 
-    return matchesName && matchesGender;
+    return matchesName && matchesCity;
   });
 
   if (filteredUsers.length === 0) {
@@ -107,16 +106,20 @@ function renderUsers() {
   usersContainer.innerHTML = filteredUsers.map(user => `
     <article class="user-card">
       <h2>${user.name}</h2>
-      <p> Пол: ${user.gender}</p>
-      <p> Возраст: ${user.age}</p>
-      <p>👀 Глаза: ${user.eye_color}</p>
-      <p> Волосы: ${user.hair_color}</p>
+      <p>✉️ ${user.email}</p>
+      <p>📍 ${user.address.city}</p>
+      <p>🏢 ${user.company.name}</p>
     </article>
   `).join('');
 }
 
 searchInput.addEventListener('input', renderUsers);
-genderFilter.addEventListener('change', renderUsers); 
+cityFilter.addEventListener('change', renderUsers);
 refreshButton.addEventListener('click', loadUsers);
 
 loadUsers();
+
+
+
+
+
